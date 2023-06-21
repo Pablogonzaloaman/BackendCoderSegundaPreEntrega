@@ -1,62 +1,37 @@
-import { UserModel } from "../DAO/models/users.models.js";
+import { UserModel } from "../DAO/models/users.model.js";
 
-class UserService {
-  async validateUser(firstName, lastName, email) {
-    if (!firstName || !lastName || !email) {
-      throw new Error("validation error: all fields are required.");
+class UserService{
+    async getAll(){
+        const users = await UserModel.find(
+            {},
+            {
+                "_id":true,
+                "firstName":true,
+                "lastName":true,
+                "email":true
+            }
+        );
+        
+        return users
     }
-  }
 
-  async getAll() {
-    const users = await UserModel.find({});
-    if (!users) {
-      throw new Error("users not found.");
+    async create({firstName, lastName, email}){
+        const userCreated = await UserModel.create({ firstName, lastName, email });
+        return userCreated
     }
-    return users;
-  }
 
-  async getOne(_id) {
-    const user = await UserModel.findById({ _id });
-    if (!user) {
-      throw new Error("user not found.");
+    async update({id, firstName, lastName, email}){
+        const userUpdated = await UserModel.updateOne(
+            { _id: id },
+            { firstName, lastName, email }
+        );
+        return userUpdated
     }
-    return user;
-  }
 
-  async deleteOne(_id) {
-    const deleteUser = await UserModel.findByIdAndDelete(_id);
-    if (!deleteUser) {
-      throw new Error("user not found.");
+    async delete({id}){
+        const userDeleted = await UserModel.deleteOne({ _id: id });
+        return userDeleted
     }
-    return deleteUser;
-  }
-
-  //ver porq un error rompe la app y otro no
-  async createOne(body) {
-    const { firstName, lastName, email } = body;
-    //this.validateUser(firstName, lastName, email);
-    const userCreated = await UserModel.create({
-      firstName,
-      lastName,
-      email,
-    });
-    return userCreated;
-  }
-
-  //aca hay un error!!!!!!!!
-  async updateOne(_id, body) {
-    //try {
-    const { firstName, lastName, email } = body;
-    await this.validateUser(firstName, lastName, email);
-    const userUpdated = await UserModel.updateOne(
-      { _id: _id },
-      { firstName, lastName, email }
-    );
-    return userUpdated;
-    /*  } catch (error) {
-      throw new Error("user not found bro.");
-    } */
-  }
 }
 
-export const userService = new UserService();
+export const userService = new UserService()
